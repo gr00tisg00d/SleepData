@@ -31,13 +31,15 @@ if (resp == "1")
     {
         // 7 days in a week
         int[] hours = new int[7];
+        string[] daysName = new string[7];
         for (int i = 0; i < hours.Length; i++)
         {
             // generate random number between 4 & 12 inclusive
             hours[i] = rnd.Next(4, 13);
+            daysName[i] = dataDate.AddDays(i).ToString("ddd");
         }
         // M/d/yyyy,#|#|#|#|#|#|#
-        sw.WriteLine($"{dataDate:M/d/yyyy}, {string.Join("|", hours)}"); // delimited data
+        sw.WriteLine($"{dataDate:M/d/yyyy},{string.Join("|", hours)}"); // delimited data
         // add 1 week to date
         dataDate = dataDate.AddDays(7);
     }
@@ -45,5 +47,52 @@ if (resp == "1")
 }
 else if (resp == "2")
 {
-    // TODO: parse data file.
+    if (File.Exists("data.txt"))
+    {
+        string[] lines = File.ReadAllLines("data.txt");
+        
+        foreach (string line in lines)
+        {
+            if (line != null && line.Length > 0)
+            {
+                string[] parts = line.Split(',');
+                string dateStr = parts[0];
+                string hoursStr = parts[1];
+
+                //Reads all lines from the file
+                //For each line, split it at the comma to separate date from sleep hours
+
+                DateTime weekDate = DateTime.Parse(dateStr);
+
+                string[] hourStrings = hoursStr.Split('|');
+                int[] hours = new int[7];
+
+                for (int i = 0; i < hourStrings.Length && i < 7; i++)
+                {
+                    hours[i] = int.Parse(hourStrings[i]);
+                }
+
+                //Splits the hours string at the pipe character '|'.
+                //Converts each hour string to an integer
+                //Stores in an array (one element per day).
+
+                int total = hours.Sum();
+                double average = total / 7.0;
+
+                //Calculates total sleep hours for the week
+                //Calculates average sleep hours per night
+
+                Console.WriteLine($"Week of {weekDate:MMM, dd, yyyy}");
+                Console.WriteLine(" Su Mo Tu We Th Fr Sa Tot Avg");
+                Console.WriteLine(" -- -- -- -- -- -- -- --- ---");
+                Console.WriteLine($"{hours[0],3}{hours[1],3}{hours[2],3}{hours[3],3}{hours[4],3}{hours[5],3}{hours[6],3}{total,4} {average:F1}");
+                Console.WriteLine();
+                
+            }
+        }
+    }
+    else
+    {
+        Console.WriteLine("File not found.");
+    }
 }
